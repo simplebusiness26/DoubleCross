@@ -1,0 +1,10 @@
+{
+  "name": "DOUBLECROSS",
+  "short_name": "DOUBLECROSS",
+  "description": "A fast mobile spy-heist game of deception, traps and extraction.",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#0d1118",
+  "theme_color": "#10131a"
+}
