@@ -1,15 +1,18 @@
 package com.simplebusiness.doublecross;
 
 import android.app.Activity;
-import android.os.Build;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
-import android.view.WindowInsets;
-import android.view.WindowInsetsController;
+import android.view.Window;
+import android.view.WindowManager;
+import android.webkit.RenderProcessGoneDetail;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.TextView;
 
 public class MainActivity extends Activity {
     private WebView webView;
@@ -17,56 +20,105 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        hideSystemUi();
 
-        webView = new WebView(this);
+        try {
+            requestWindowFeature(Window.FEATURE_NO_TITLE);
+            getWindow().setFlags(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN
+            );
+            enterImmersiveMode();
+            launchGame();
+        } catch (Throwable error) {
+            showStartupError(error);
+        }
+    }
+
+    private void launchGame() {
+        webView = new WebView(getApplicationContext());
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
         settings.setAllowFileAccess(true);
         settings.setAllowContentAccess(true);
-        settings.setMediaPlaybackRequiresUserGesture(false);
         settings.setBuiltInZoomControls(false);
         settings.setDisplayZoomControls(false);
+        settings.setSupportZoom(false);
+        settings.setMediaPlaybackRequiresUserGesture(true);
 
-        webView.setWebViewClient(new WebViewClient());
-        webView.setWebChromeClient(new WebChromeClient());
-        webView.setBackgroundColor(0xFF0D1118);
+        webView.setBackgroundColor(Color.rgb(13, 17, 24));
         webView.setKeepScreenOn(true);
+        webView.setWebChromeClient(new WebChromeClient());
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+                showStartupError(new RuntimeException("Android WebView renderer stopped unexpectedly."));
+                return true;
+            }
+        });
 
         setContentView(webView);
         webView.loadUrl("file:///android_asset/index.html");
     }
 
-    private void hideSystemUi() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            WindowInsetsController controller = getWindow().getInsetsController();
-            if (controller != null) {
-                controller.hide(WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
-                controller.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+    @SuppressWarnings("deprecation")
+    private void enterImmersiveMode() {
+        getWindow().getDecorView().setSystemUiVisibility(
+            View.SYSTEM_UI_FLAG_FULLSCREEN |
+            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
+            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        );
+    }
+
+    private void showStartupError(Throwable error) {
+        try {
+            if (webView != null) {
+                webView.stopLoading();
+                webView.destroy();
+                webView = null;
             }
-        } else {
-            getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_FULLSCREEN |
-                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
-                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-            );
+        } catch (Throwable ignored) {
         }
+
+        TextView message = new TextView(this);
+        message.setBackgroundColor(Color.rgb(13, 17, 24));
+        message.setTextColor(Color.WHITE);
+        message.setGravity(Gravity.CENTER);
+        message.setPadding(48, 48, 48, 48);
+        message.setTextSize(16);
+        message.setText(
+            "DOUBLECROSS could not start.\n\n" +
+            error.getClass().getSimpleName() + ": " +
+            (error.getMessage() == null ? "Unknown Android startup error" : error.getMessage()) +
+            "\n\nPlease screenshot this message so we can fix the exact device issue."
+        );
+        setContentView(message);
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) hideSystemUi();
+        if (hasFocus) {
+            try {
+                enterImmersiveMode();
+            } catch (Throwable ignored) {
+            }
+        }
     }
 
     @Override
     protected void onDestroy() {
         if (webView != null) {
-            webView.destroy();
+            try {
+                webView.stopLoading();
+                webView.loadUrl("about:blank");
+                webView.destroy();
+            } catch (Throwable ignored) {
+            }
+            webView = null;
         }
         super.onDestroy();
     }
