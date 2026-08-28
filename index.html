@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#10131a" />
+  <title>DOUBLECROSS</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main id="app">
+    <section id="menu" class="screen active">
+      <div class="menu-card">
+        <div class="eyebrow">A MOBILE SPY HEIST</div>
+        <h1>DOUBLE<span>CROSS</span></h1>
+        <p class="tagline">Search. Deceive. Sabotage. Escape.</p>
+
+        <div class="mode-panel">
+          <h2>Solo Operation</h2>
+          <p>You and an AI partner versus two rival operatives.</p>
+          <div class="difficulty-grid">
+            <button class="difficulty" data-difficulty="easy"><strong>Easy</strong><small>Forgiving rivals · helpful partner</small></button>
+            <button class="difficulty selected" data-difficulty="medium"><strong>Medium</strong><small>Balanced deception and pursuit</small></button>
+            <button class="difficulty" data-difficulty="hard"><strong>Hard</strong><small>Predictive rivals · ruthless traps</small></button>
+          </div>
+          <button id="startButton" class="primary">BEGIN OPERATION</button>
+        </div>
+
+        <p class="prototype-note">Prototype objective: recover 3 intel files and reach extraction before the rival team.</p>
+      </div>
+    </section>
+
+    <section id="game" class="screen">
+      <header class="hud">
+        <div><span class="hud-label">TEAM INTEL</span><strong id="teamIntel">0 / 3</strong></div>
+        <div class="hud-center"><span id="statusText">Search the mansion.</span></div>
+        <div><span class="hud-label">RIVALS</span><strong id="rivalIntel">0 / 3</strong></div>
+      </header>
+
+      <canvas id="gameCanvas" aria-label="DoubleCross game arena"></canvas>
+
+      <div class="mobile-controls">
+        <div id="joystick" class="joystick"><div id="stick" class="stick"></div></div>
+        <div class="actions">
+          <button id="trapButton" class="action secondary-action"><span>⌁</span>TRAP</button>
+          <button id="interactButton" class="action"><span>◎</span>ACTION</button>
+        </div>
+      </div>
+
+      <div class="desktop-help">Move: WASD / Arrows · Action: Space · Trap: E</div>
+      <button id="menuButton" class="menu-button">MENU</button>
+    </section>
+
+    <section id="result" class="screen result-screen">
+      <div class="result-card">
+        <div id="resultKicker" class="eyebrow">OPERATION COMPLETE</div>
+        <h2 id="resultTitle">EXTRACTED</h2>
+        <p id="resultText"></p>
+        <button id="rematchButton" class="primary">ONE MORE OPERATION</button>
+        <button id="resultMenuButton" class="ghost">CHANGE DIFFICULTY</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="src/game.js"></script>
+</body>
+</html>
