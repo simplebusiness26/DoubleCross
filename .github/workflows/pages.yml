@@ -1,4 +1,4 @@
-name: Verify and Deploy DoubleCross
+name: Verify DoubleCross
 
 on:
   push:
@@ -7,12 +7,6 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: true
 
 jobs:
   verify:
@@ -22,21 +16,23 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Check required game files
+        run: |
+          test -f index.html
+          test -f styles.css
+          test -f src/game.js
+          test -f manifest.webmanifest
+          test -f sw.js
       - name: Check game JavaScript
         run: node --check src/game.js
-
-  deploy:
-    needs: verify
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - name: Package playable web build
+        uses: actions/upload-artifact@v4
         with:
-          path: .
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          name: doublecross-playable-web
+          path: |
+            index.html
+            styles.css
+            src/game.js
+            manifest.webmanifest
+            sw.js
+          if-no-files-found: error
