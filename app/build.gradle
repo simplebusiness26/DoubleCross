@@ -1,0 +1,50 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.simplebusiness.doublecross'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.simplebusiness.doublecross'
+        minSdk 24
+        targetSdk 35
+        versionCode 1
+        versionName '0.1.0'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    sourceSets {
+        main {
+            assets.srcDir(layout.buildDirectory.dir('generated/doublecrossAssets'))
+        }
+    }
+}
+
+def generatedAssets = layout.buildDirectory.dir('generated/doublecrossAssets')
+
+tasks.register('syncGameAssets', Sync) {
+    from(rootProject.projectDir) {
+        include 'index.html'
+        include 'styles.css'
+        include 'manifest.webmanifest'
+        include 'sw.js'
+        include 'src/game.js'
+    }
+    into(generatedAssets)
+}
+
+tasks.named('preBuild').configure {
+    dependsOn('syncGameAssets')
+}
