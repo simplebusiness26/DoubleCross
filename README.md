@@ -8,6 +8,12 @@ Every operative enters the same compact location with a mission. Search rooms, m
 
 **Core loop:** Enter → Search → Discover → Deceive → Sabotage → Steal → Escape → Rematch.
 
+## Android APK
+
+DoubleCross now includes a native Android shell that packages the game for offline landscape play on Android phones. The `Build Android APK` GitHub Actions workflow builds an installable debug APK on every push to `main` and uploads it as the `DoubleCross-Android-APK` artifact.
+
+The Android app uses the same game source as the web version, so gameplay changes flow into the next APK build automatically.
+
 ## Game modes
 
 ### Solo Operations
